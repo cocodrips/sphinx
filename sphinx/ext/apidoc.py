@@ -380,6 +380,8 @@ Note: By default this script will not overwrite already created files."""))
         group.add_argument('--ext-%s' % ext, action='append_const',
                            const='sphinx.ext.%s' % ext, dest='extensions',
                            help=__('enable %s extension') % ext)
+    group.add_argument('--extensions', metavar='EXTENSIONS', dest='extensions',
+                       action='append', help=__('enable arbitrary extensions'))
 
     return parser
 
@@ -443,6 +445,12 @@ def main(argv=sys.argv[1:]):
         )
         if args.extensions:
             d['extensions'].extend(args.extensions)
+
+        # handle use of CSV-style extension values
+        for ext in d['extensions'][:]:
+            if ',' in ext:
+                d['extensions'].remove(ext)
+                d['extensions'].extend(ext.split(','))
 
         if isinstance(args.header, binary_type):
             d['project'] = d['project'].decode('utf-8')
